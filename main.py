@@ -6,21 +6,22 @@ from create_topic_description import create_chain
 from critique_topic_description import critique_chain
 
 class ReflectionState(BaseModel):
-    topic_history: list[tuple[str, str]] = Field(description="The list of previously covered topics") 
+    topic_history: list[dict[str, str]] = Field(description="The list of previously covered topics") 
     topic: str = Field(description="The topic to generate code for")
     description: str = Field(description="The description of the topic")
     critique: str = Field(description="The critique of the topic")  
+    count: int = Field(description="The count of topics generated")
 
 graph = StateGraph(ReflectionState)
 
 def create_topic_description(state:ReflectionState):
-    response = create_chain.invoke({"topic_history": state.topic_history})
+    response = create_chain.invoke({"topic_history": state.topic_history, "topic": state.topic, "description": state.description, "critique": state.critique})
     # Extract topic and description from the response
     lines = response.strip().split('\n')
     topic = lines[0].replace('topic:', '').strip()
     description = '\n'.join(lines[2:]).replace('description:', '').strip()
     # Return the updated state
-    return {"topic": topic, "description": description}
+    return {"topic": topic, "description": description, "count": state.count + 1}
 
 def critique_topic_description(state:ReflectionState):
     critique = critique_chain.invoke({"topic_history": state.topic_history, "topic": state.topic, "description": state.description})
@@ -28,13 +29,9 @@ def critique_topic_description(state:ReflectionState):
     return {"critique": critique}
 
 def should_continue(state:ReflectionState):
-    # Add current topic to history if it's not empty
-    if state.topic and state.description:
-        state.topic_history.append((state.topic, state.description))
-    
-    if len(state.topic_history) > 2:
-        return END
-    return "create_topic_description"
+    if state.count < 2:
+        return "critique_topic_description"
+    return END
 
 graph.add_node("create_topic_description", create_topic_description)
 graph.add_node("critique_topic_description", critique_topic_description)
@@ -49,7 +46,8 @@ initial_state = {
     "topic_history": [],
     "topic": "",
     "description": "",
-    "critique": ""
+    "critique": "",
+    "count": 0
 }
 
 result = app.invoke(initial_state)

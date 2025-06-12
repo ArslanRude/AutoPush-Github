@@ -8,7 +8,7 @@ from pydantic import BaseModel,Field
 load_dotenv()
 
 
-model = ChatGroq(model_name="llama-3.3-70b-versatile",temperature=0.6)
+model = ChatGroq(model_name="llama-3.3-70b-versatile",temperature=0.6,max_retries=2)
 parser = StrOutputParser()
 
 critique_prompt = ChatPromptTemplate.from_messages([
