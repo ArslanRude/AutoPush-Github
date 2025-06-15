@@ -1,2 +1,1 @@
-# AutoPush-Github
-It generate Gen AI code and push the code on Github 
+'AI-Powered Virtual Wardrobe and Personalized Fashion Recommendation\n==========================\n\nThis project provides a unique and innovative solution for fashion enthusiasts, helping them to manage their wardrobe, reduce decision fatigue, and make more sustainable fashion choices.'  

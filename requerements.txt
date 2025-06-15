@@ -4,3 +4,4 @@ langchain_community
 langgraph
 langchain_core
 python-dotenv
+langchain_experimental

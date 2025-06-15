@@ -16,16 +16,13 @@ graph = StateGraph(ReflectionState)
 
 def create_topic_description(state:ReflectionState):
     response = create_chain.invoke({"topic_history": state.topic_history, "topic": state.topic, "description": state.description, "critique": state.critique})
-    # Extract topic and description from the response
     lines = response.strip().split('\n')
     topic = lines[0].replace('topic:', '').strip()
     description = '\n'.join(lines[2:]).replace('description:', '').strip()
-    # Return the updated state
     return {"topic": topic, "description": description, "count": state.count + 1}
 
 def critique_topic_description(state:ReflectionState):
     critique = critique_chain.invoke({"topic_history": state.topic_history, "topic": state.topic, "description": state.description})
-    # Return the updated state with the critique
     return {"critique": critique}
 
 def should_continue(state:ReflectionState):
